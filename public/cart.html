@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Корзина</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul><li><strong>АвтоЗапчасти Плюс</strong></li></ul>
+    <ul>
+      <li><a href="index.html">Каталог</a></li>
+      <li><a href="cart.html">Корзина</a></li>
+      <li><a href="contacts.html">Контакты</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h2>Корзина</h2>
+    <div id="cart-items"></div>
+    <form id="order-form" class="grid">
+      <input name="name" placeholder="Ваше имя" required>
+      <input name="email" placeholder="Email" type="email" required>
+      <button type="submit">Оформить заказ</button>
+    </form>
+  </main>
+
+  <script>
+    const items = JSON.parse(localStorage.getItem('cart') || '[]');
+    const container = document.getElementById('cart-items');
+    let total = 0;
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.innerHTML = `<p>${item.name} – ${item.price} ₽</p>`;
+      container.appendChild(div);
+      total += item.price;
+    });
+    container.innerHTML += `<p><strong>Итого: ${total} ₽</strong></p>`;
+
+    const form = document.getElementById('order-form');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user: {
+            name: form.name.value,
+            email: form.email.value
+          },
+          items
+        })
+      }).then(() => {
+        alert('Заказ отправлен!');
+        localStorage.removeItem('cart');
+        location.href = 'index.html';
+      });
+    });
+  </script>
+</body>
+</html>
