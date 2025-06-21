@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Админ-панель</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul><li><strong>АвтоЗапчасти Плюс – Админ</strong></li></ul>
+  </nav>
+
+  <main class="container">
+    <h2>Все заказы</h2>
+    <div id="orders"></div>
+  </main>
+
+  <script>
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(data => {
+        const ordersDiv = document.getElementById('orders');
+        if (!data.length) {
+          ordersDiv.innerHTML = '<p>Заказов пока нет.</p>';
+          return;
+        }
+
+        data.forEach(order => {
+          const div = document.createElement('div');
+          const total = order.items.reduce((sum, i) => sum + i.price, 0);
+          const itemsList = order.items.map(i => `${i.name} – ${i.price} ₽`).join('<br>');
+          div.innerHTML = `
+            <article>
+              <h3>${order.user.name} (${order.user.email})</h3>
+              <p>${itemsList}</p>
+              <p><strong>Итого:</strong> ${total} ₽</p>
+            </article>
+          `;
+          ordersDiv.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>
